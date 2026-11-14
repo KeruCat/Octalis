@@ -23,7 +23,7 @@ unsafe{
 
         string[] extensions = [.. list];
         foreach(string name in extensions) Console.WriteLine(name);
-        using var instance = new VulkanInstance(extensions, true);
+        using var instance = new VulkanInstance(extensions);
     }
     static void OnUpdate(double dt) { }
     static void OnRender(double dt) { }

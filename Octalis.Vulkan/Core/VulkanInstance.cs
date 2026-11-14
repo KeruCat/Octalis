@@ -11,12 +11,15 @@ internal class VulkanInstance : VulkanObj
     private readonly Instance _instance;
     internal Vk Vk { get => _vk;}
     internal Instance Instance { get => _instance; }
-    internal unsafe VulkanInstance(string[] extensions, bool validation)
+    internal unsafe VulkanInstance(string[] extensions)
     {
         _vk = Vk.GetApi();
+#if DEBUG
         HashSet<string> validationNames = LayerNames();
         List<string> validationlayers = СompatibilityСheck(validationNames, _validationLayers);
-
+#else
+        List<string> validationlayers = [];
+#endif
         HashSet<string> extensionNames = ExtensionNames();
         List<string> extension = СompatibilityСheck(extensionNames, extensions);
 
