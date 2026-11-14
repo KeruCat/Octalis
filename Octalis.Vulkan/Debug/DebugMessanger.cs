@@ -59,7 +59,6 @@ internal sealed unsafe class DebugMessenger : VulkanObj
     {
         try
         {
-            var self = (DebugMessenger)GCHandle.FromIntPtr((nint)userData).Target!;
             var text = SilkMarshal.PtrToString((nint)data->PMessage) ?? "(пустое сообщение)";
             Log(severity, types, text);
         }
@@ -77,7 +76,12 @@ internal sealed unsafe class DebugMessenger : VulkanObj
             (severity & DebugUtilsMessageSeverityFlagsEXT.WarningBitExt) != 0 ? "Warning" :
             (severity & DebugUtilsMessageSeverityFlagsEXT.InfoBitExt)    != 0 ? "Information" :
             "Debug";
-        if (Debugger.IsAttached) Debugger.Break();
+        if (severity.HasFlag(
+            DebugUtilsMessageSeverityFlagsEXT.ErrorBitExt)
+            && Debugger.IsAttached)
+        {
+            Debugger.Break();
+        }
         Console.Error.WriteLine($"[{level}]\n\t[Vulkan {types}] {text}");
     }
 }
