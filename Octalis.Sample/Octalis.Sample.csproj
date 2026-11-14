@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SilkVersion>2.23.0</SilkVersion> 
+  </PropertyGroup>
+    <ItemGroup>
+    <PackageReference Include="Silk.NET.Vulkan"                           Version="$(SilkVersion)" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.KHR"            Version="$(SilkVersion)" />
+    <PackageReference Include="Silk.NET.Vulkan.Extensions.EXT"            Version="$(SilkVersion)" />
+    <PackageReference Include="Silk.NET.Windowing"                        Version="$(SilkVersion)" />
+    <PackageReference Include="Silk.NET.Maths"                            Version="$(SilkVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Octalis.Vulkan/Octalis.Vulkan.csproj" />
+  </ItemGroup>
+</Project>

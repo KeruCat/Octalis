@@ -15,18 +15,22 @@ internal class VulkanSurface : VulkanObj
     internal unsafe VulkanSurface(Instance instance, IWindow window, Vk vk)
     {
         ArgumentNullException.ThrowIfNull(window);
+        if (!vk.TryGetInstanceExtension(instance, out KhrSurface khrSurface))
+            throw new VulkanException("failed to create khrSurface extension", "VulkanWindow.Surface.KHRSurface");
         var vkSurface = window.VkSurface 
          ?? throw new VulkanException("window created without Vulkan support", "VulkanWindow.Surface.SurfaceKHR");
         _surfacekhr = vkSurface.Create<AllocationCallbacks>(instance.ToHandle(), null).ToSurface();
 
-        if (!vk.TryGetInstanceExtension(instance, out KhrSurface khrSurface))
-            throw new VulkanException("failed to create khrSurface extension", "VulkanWindow.Surface.KHRSurface");
         _khrSurface = khrSurface;
         _instance   = instance;
     }
     internal override unsafe void DisposeRes()
     {
-        _khrSurface.DestroySurface(_instance, _surfacekhr, null);
-        _khrSurface.Dispose();
+        try {
+            _khrSurface.DestroySurface(_instance, _surfacekhr, null);
+        }
+        finally {
+            _khrSurface.Dispose();
+        }
     }
 }
