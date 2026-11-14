@@ -24,6 +24,7 @@ unsafe{
         string[] extensions = [.. list];
         foreach(string name in extensions) Console.WriteLine(name);
         using var instance = new VulkanInstance(extensions);
+        using var surface = new VulkanSurface(instance.Instance, window.Window ,instance.Vk);
     }
     static void OnUpdate(double dt) { }
     static void OnRender(double dt) { }

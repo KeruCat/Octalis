@@ -15,12 +15,13 @@ internal class VulkanSurface : VulkanObj
     internal unsafe VulkanSurface(Instance instance, IWindow window, Vk vk)
     {
         ArgumentNullException.ThrowIfNull(window);
-        if (!vk.TryGetInstanceExtension(instance, out KhrSurface khrSurface))
-            throw new VulkanException("failed to create khrSurface extension", "VulkanWindow.Surface.KHRSurface");
+        
         var vkSurface = window.VkSurface 
-         ?? throw new VulkanException("window created without Vulkan support", "VulkanWindow.Surface.SurfaceKHR");
+         ?? throw new VulkanException("window created without Vulkan support", "VulkanSurface.SurfaceKHR");
+        if (!vk.TryGetInstanceExtension(instance, out KhrSurface khrSurface))
+            throw new VulkanException("failed to create khrSurface extension", "VulkanSurface.KHRSurface");
+        
         _surfacekhr = vkSurface.Create<AllocationCallbacks>(instance.ToHandle(), null).ToSurface();
-
         _khrSurface = khrSurface;
         _instance   = instance;
     }
