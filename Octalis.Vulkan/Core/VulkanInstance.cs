@@ -1,56 +1,43 @@
-using Octalis.Vulkan.Debug;
 using Octalis.Vulkan.Base;
-using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Vulkan;
-using Silk.NET.Vulkan.Extensions.EXT;
 
 namespace Octalis.Vulkan.Core;
-internal class VulkanInstance : VulkanObj
-{ 
+
+internal sealed class VulkanInstance : VulkanObj
+{
     private static readonly string[] _validationLayers = ["VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"];
     private readonly Vk _vk;
     private readonly Instance _instance;
-    private readonly DebugMessenger? _debugMessenger = null;
-    internal Vk Vk { get => _vk;}
+    internal Vk Vk { get => _vk; }
     internal Instance Instance { get => _instance; }
-    internal unsafe VulkanInstance(string[] extensions)
+    internal unsafe VulkanInstance(VulkanInstanceOptions options)
     {
         _vk = Vk.GetApi();
-#if DEBUG
-        HashSet<string> validationNames = LayerNames();
-        List<string> validationlayers = CompatibilityCheck(validationNames, _validationLayers);
-        extensions = [.. extensions, "VK_EXT_debug_utils"];
-        _debugMessenger = new DebugMessenger();
-#else
-        List<string> validationlayers = [];
-#endif
-        HashSet<string> extensionNames = ExtensionNames();
-        List<string> extension = CompatibilityCheck(extensionNames, extensions);
-#region CreateInstance
+        #region CreateInstance
+
         ApplicationInfo applicationInfo = new()
         {
             SType = StructureType.ApplicationInfo,
-            PApplicationName = (byte*)SilkMarshal.StringToPtr("Octalis"),
+            PApplicationName = (byte*)SilkMarshal.StringToPtr(options.ApplicationName),
             ApplicationVersion = Vk.MakeVersion(0, 0, 1),
-            PEngineName = (byte*)SilkMarshal.StringToPtr("Octalis.Vulkan"),
+            PEngineName = (byte*)SilkMarshal.StringToPtr(options.EngineName),
             EngineVersion = Vk.MakeVersion(0, 0, 1),
-            ApiVersion = Vk.MakeVersion(1,2,0),
+            ApiVersion = Vk.MakeVersion(1, 2, 0),
         };
-        var debugCreateInfo = default(DebugUtilsMessengerCreateInfoEXT);
-        if (_debugMessenger is not null)
-            debugCreateInfo = DebugMessenger.CreateInfo();
+        DebugUtilsMessengerCreateInfoEXT debugCreateInfo = options.DebugCreateInfo;
         InstanceCreateInfo createInfo = new()
         {
             SType = StructureType.InstanceCreateInfo,
-            PNext = _debugMessenger is null ? null : &debugCreateInfo,
+            PNext = &debugCreateInfo,
             PApplicationInfo = &applicationInfo,
-            EnabledExtensionCount   = (uint)extension.Count,
-            PpEnabledExtensionNames = (byte**)SilkMarshal.StringArrayToPtr(extension),
-            EnabledLayerCount   = (uint)validationlayers.Count,
-            PpEnabledLayerNames = (byte**)SilkMarshal.StringArrayToPtr(validationlayers),
+            EnabledExtensionCount = (uint)options.Extensions.Length,
+            PpEnabledExtensionNames = (byte**)SilkMarshal.StringArrayToPtr(options.Extensions),
+            EnabledLayerCount = (uint)options.Layers.Length,
+            PpEnabledLayerNames = (byte**)SilkMarshal.StringArrayToPtr(options.Layers),
         };
-        try{
+        try
+        {
             VkCheck.Ok(_vk.CreateInstance(&createInfo, null, out Instance instance), "vkCreateInstance");
             _instance = instance;
         }
@@ -61,16 +48,7 @@ internal class VulkanInstance : VulkanObj
             SilkMarshal.Free((nint)createInfo.PpEnabledExtensionNames);
             SilkMarshal.Free((nint)createInfo.PpEnabledLayerNames);
         }
-#endregion
-#region CreateDebugMessanger
-        if (_debugMessenger is not null)
-        {
-            if (!_vk.TryGetInstanceExtension(_instance, out ExtDebugUtils debugUtils))
-                throw new VulkanException("VK_EXT_debug_utils failed to load", "vkGetInstanceProcAddr");
-
-            _debugMessenger.Create(debugUtils, _instance);
-        }
-#endregion
+        #endregion
     }
     internal unsafe HashSet<string> LayerNames()
     {
@@ -84,7 +62,7 @@ internal class VulkanInstance : VulkanObj
             VkCheck.Ok(_vk.EnumerateInstanceLayerProperties(&count, pProperties),
                 "vkEnumerateInstanceLayerProperties");
             for (var i = 0; i < count; i++)
-                names.Add(SilkMarshal.PtrToString((nint)pProperties[i].LayerName)?? string.Empty);
+                names.Add(SilkMarshal.PtrToString((nint)pProperties[i].LayerName) ?? string.Empty);
         }
         return names;
     }
@@ -101,7 +79,7 @@ internal class VulkanInstance : VulkanObj
             VkCheck.Ok(_vk.EnumerateInstanceExtensionProperties((byte*)null, &count, pProperties),
                 "vkEnumerateInstanceExtensionProperties");
             for (var i = 0; i < count; i++)
-                names.Add(SilkMarshal.PtrToString((nint)pProperties[i].ExtensionName)?? string.Empty);
+                names.Add(SilkMarshal.PtrToString((nint)pProperties[i].ExtensionName) ?? string.Empty);
         }
         return names;
     }
@@ -112,15 +90,22 @@ internal class VulkanInstance : VulkanObj
         {
             if (avaible.Contains(name))
                 output.Add(name);
-            else 
+            else
                 throw new VulkanException($"The resulting {name} is not supported by the system.", "VulkanInstance");
         }
         return output;
     }
     internal override unsafe void DisposeRes()
     {
-        _debugMessenger?.Dispose();
         _vk.DestroyInstance(_instance, null);
         _vk.Dispose();
     }
+}
+internal sealed record class VulkanInstanceOptions
+{
+    internal required string ApplicationName { get; init; }
+    internal required string EngineName { get; init; }
+    internal required string[] Extensions { get; init; }
+    internal required string[] Layers { get; init; }
+    internal required DebugUtilsMessengerCreateInfoEXT DebugCreateInfo { get; init; }
 }
