@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Octalis.Sample (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build Octalis.Sample (Debug)",
+            "program": "${workspaceFolder}/Octalis.Sample/bin/Debug/net10.0/Octalis.Sample.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Octalis.Sample",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Octalis.Sample (Release)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build Octalis.Sample (Release)",
+            "program": "${workspaceFolder}/Octalis.Sample/bin/Release/net10.0/Octalis.Sample.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Octalis.Sample",
+            "console": "integratedTerminal",
+            "stopAtEntry": false
+        }
+    ]
+}

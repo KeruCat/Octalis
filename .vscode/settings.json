@@ -1,3 +1,4 @@
 {
-    "dotnet.defaultSolution": "Octalis.slnx"
+    "dotnet.defaultSolution": "Octalis.slnx",
+    "csharp.debug.console": "integratedTerminal"
 }
