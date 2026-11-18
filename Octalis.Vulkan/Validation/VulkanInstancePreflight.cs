@@ -1,11 +1,12 @@
 using Octalis.Vulkan.Core;
 using Octalis.Vulkan.Logging;
+using Octalis.Vulkan.Base;
 using Silk.NET.Core;
 using Silk.NET.Vulkan;
 
-namespace Octalis.Vulkan.Base;
+namespace Octalis.Vulkan.Validation;
 
-internal static class VkOptionsCheck
+internal static class VulkanInstancePreflight
 {
     private const string DebugUtilsExt = "VK_EXT_debug_utils";
 

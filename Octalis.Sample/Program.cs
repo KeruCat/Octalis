@@ -1,6 +1,7 @@
 ﻿using Octalis.Vulkan.Core;
 using Octalis.Vulkan.Debug;
 using Octalis.Vulkan.Logging;
+using Octalis.Vulkan.Validation;
 using Silk.NET.Vulkan;
 using Silk.NET.Windowing;
 unsafe
@@ -27,6 +28,7 @@ unsafe
         DebugCreateInfo = boot.CreateInfo,
         Version = Vk.MakeVersion(1,1,0)
     };
+    VulkanInstancePreflight.Validate(instanceoptions);
     using var instance = new VulkanInstance(instanceoptions);
     window.Window.Run();
 
