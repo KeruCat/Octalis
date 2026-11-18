@@ -1,32 +1,37 @@
 ﻿using Octalis.Vulkan.Core;
 using Octalis.Vulkan.Debug;
-using Silk.NET.Core.Native;
+using Octalis.Vulkan.Logging;
+using Silk.NET.Vulkan;
 using Silk.NET.Windowing;
-unsafe{
+unsafe
+{
     WindowOptions options = WindowOptions.DefaultVulkan;
     options.Title = "sample";
     using VulkanWindow window = new(options);
 
-    window.OnLoad   += Onload;
+    window.OnLoad += Onload;
     window.OnUpdate += OnUpdate;
     window.OnRender += OnRender;
-    window.OnClose  += OnClose;
+    window.OnClose += OnClose;
 
-    var bootOptions = new VulkanDebugOptions() {};
-    using var boot = new VulkanDebugBootstrap(bootOptions);
+    var bootOptions = new VulkanDebugOptions() { };
+    var boot = new VulkanDebugBootstrap(bootOptions);
     var instanceoptions = new VulkanInstanceOptions()
     {
-      ApplicationName = "Octalis.Sample",
-      EngineName = "Octalis",
-      Extensions =  [],
-      Layers = [],
-      DebugCreateInfo = boot.CreateInfo
+        ApplicationName = "Octalis.Sample",
+        ApplicationVersion = Vk.MakeVersion(0,1,0),
+        EngineName = "Octalis",
+        EngineVersion = Vk.MakeVersion(0,1,0),
+        Extensions = ["VK_EXT_debug_utils"],
+        Layers = ["VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"],
+        DebugCreateInfo = boot.CreateInfo,
+        Version = Vk.MakeVersion(1,1,0)
     };
     using var instance = new VulkanInstance(instanceoptions);
     window.Window.Run();
 
-    void Onload(){}
+    static void Onload() { Logger.Information("onLoad","Meow"); }
     static void OnUpdate(double dt) { }
     static void OnRender(double dt) { }
-    static void OnClose() { Console.WriteLine("mrew");}
+    static void OnClose() { Logger.Information("onClose","Meow"); }
 }

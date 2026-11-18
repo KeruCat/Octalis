@@ -1,4 +1,5 @@
 using Octalis.Vulkan.Base;
+using Silk.NET.Core;
 using Silk.NET.Core.Native;
 using Silk.NET.Vulkan;
 
@@ -14,22 +15,21 @@ internal sealed class VulkanInstance : VulkanObj
     internal unsafe VulkanInstance(VulkanInstanceOptions options)
     {
         _vk = Vk.GetApi();
-        #region CreateInstance
 
         ApplicationInfo applicationInfo = new()
         {
             SType = StructureType.ApplicationInfo,
             PApplicationName = (byte*)SilkMarshal.StringToPtr(options.ApplicationName),
-            ApplicationVersion = Vk.MakeVersion(0, 0, 1),
+            ApplicationVersion = options.ApplicationVersion,
             PEngineName = (byte*)SilkMarshal.StringToPtr(options.EngineName),
-            EngineVersion = Vk.MakeVersion(0, 0, 1),
-            ApiVersion = Vk.MakeVersion(1, 2, 0),
+            EngineVersion = options.EngineVersion,
+            ApiVersion = options.Version,
         };
-        DebugUtilsMessengerCreateInfoEXT debugCreateInfo = options.DebugCreateInfo;
+        DebugUtilsMessengerCreateInfoEXT debugCreateInfo = options.DebugCreateInfo.GetValueOrDefault();
         InstanceCreateInfo createInfo = new()
         {
             SType = StructureType.InstanceCreateInfo,
-            PNext = &debugCreateInfo,
+            PNext = options.DebugCreateInfo.HasValue ? &debugCreateInfo : null,
             PApplicationInfo = &applicationInfo,
             EnabledExtensionCount = (uint)options.Extensions.Length,
             PpEnabledExtensionNames = (byte**)SilkMarshal.StringArrayToPtr(options.Extensions),
@@ -48,7 +48,6 @@ internal sealed class VulkanInstance : VulkanObj
             SilkMarshal.Free((nint)createInfo.PpEnabledExtensionNames);
             SilkMarshal.Free((nint)createInfo.PpEnabledLayerNames);
         }
-        #endregion
     }
     internal unsafe HashSet<string> LayerNames()
     {
@@ -95,7 +94,7 @@ internal sealed class VulkanInstance : VulkanObj
         }
         return output;
     }
-    internal override unsafe void DisposeRes()
+    internal override unsafe void DisposeCore()
     {
         _vk.DestroyInstance(_instance, null);
         _vk.Dispose();
@@ -104,8 +103,12 @@ internal sealed class VulkanInstance : VulkanObj
 internal sealed record class VulkanInstanceOptions
 {
     internal required string ApplicationName { get; init; }
+    internal Version32 ApplicationVersion { get; init; } = Vk.MakeVersion(0, 1, 0);
     internal required string EngineName { get; init; }
+    internal Version32 EngineVersion { get; init; } = Vk.MakeVersion(0, 1, 0);
     internal required string[] Extensions { get; init; }
     internal required string[] Layers { get; init; }
-    internal required DebugUtilsMessengerCreateInfoEXT DebugCreateInfo { get; init; }
+    internal Version32 Version { get; init; } = Vk.MakeVersion(1, 0, 0);
+    internal DebugUtilsMessengerCreateInfoEXT? DebugCreateInfo { get; init; } = null;
+
 }

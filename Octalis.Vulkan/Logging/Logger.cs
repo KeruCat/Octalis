@@ -24,18 +24,13 @@ internal static class Logger
     {
         if (level < MinimumLevel)
             return;
-
         lock (_lock)
         {
+            var prev = Console.ForegroundColor;
             Console.ForegroundColor = GetColor(level);
-
-            Console.Error.WriteLine(
-                $"[{DateTime.Now:HH:mm:ss}] " +
-                $"[{level}] " +
-                $"[{category}] " +
-                $"{message}");
-
-            Console.ResetColor();
+            var writer = level >= LogLevel.Warning ? Console.Error : Console.Out;
+            writer.WriteLine($"[{DateTime.Now:HH:mm:ss}] [{level}] [{category}] {message}");
+            Console.ForegroundColor = prev;
         }
     }
 

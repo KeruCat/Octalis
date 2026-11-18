@@ -3,7 +3,7 @@ using Silk.NET.Vulkan;
 
 namespace Octalis.Vulkan.Debug;
 
-internal sealed class VulkanDebugBootstrap : VulkanObj
+internal sealed class VulkanDebugBootstrap 
 {
     internal DebugUtilsMessengerCreateInfoEXT CreateInfo { get; }
 
@@ -28,4 +28,5 @@ internal sealed record class VulkanDebugOptions
         = DebugUtilsMessageTypeFlagsEXT.GeneralBitExt
         | DebugUtilsMessageTypeFlagsEXT.ValidationBitExt
         | DebugUtilsMessageTypeFlagsEXT.PerformanceBitExt;
+    internal bool BreakOnError { get; init; } = false;
 }

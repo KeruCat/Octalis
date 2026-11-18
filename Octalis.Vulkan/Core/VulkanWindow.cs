@@ -15,7 +15,7 @@ internal sealed class VulkanWindow : VulkanObj
     {
         _window = Silk.NET.Windowing.Window.Create(options);
     }
-    internal override void DisposeRes()
+    internal override void DisposeCore()
     {
         _window.Dispose();
     }

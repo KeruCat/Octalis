@@ -12,6 +12,7 @@ namespace Octalis.Vulkan.Debug;
 internal static unsafe class VulkanLogger
 {
     internal static readonly PfnDebugUtilsMessengerCallbackEXT Callback = new(&OnMessage);
+    internal static bool BreakOnError = false;
 
     [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     private static Bool32 OnMessage(
@@ -20,10 +21,12 @@ internal static unsafe class VulkanLogger
         DebugUtilsMessengerCallbackDataEXT* data,
         void* userData)
     {
-        string text = SilkMarshal.PtrToString((nint)data->PMessage) ?? string.Empty;
-
-        Log(severity, type, text);
-
+        try
+        {   
+            string text = SilkMarshal.PtrToString((nint)data->PMessage) ?? string.Empty;
+            Log(severity, type, text);
+        }
+        catch{}
         return false;
     }
 

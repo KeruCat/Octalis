@@ -26,7 +26,7 @@ internal sealed class VulkanSurface : VulkanObj
         _khrSurface = khrSurface;
         _instance = instance;
     }
-    internal override unsafe void DisposeRes()
+    internal override unsafe void DisposeCore()
     {
         try
         {
