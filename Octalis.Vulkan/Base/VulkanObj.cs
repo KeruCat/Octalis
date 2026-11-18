@@ -20,7 +20,7 @@ internal abstract class VulkanObj : IDisposable
         }
         catch (Exception ex)
         {
-            Logger.Fatal("VulkanObj", $"Dispose {GetType().Name} fall: {ex}");
+            Logger.Fatal("VulkanObj", $"Disposing {GetType().Name} failed: {ex}");
             if (Debugger.IsAttached)
                 Debugger.Break();
             throw;

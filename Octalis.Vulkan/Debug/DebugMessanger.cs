@@ -22,7 +22,7 @@ internal sealed unsafe class DebugMessenger : VulkanObj
         _handle = handle;
     }
 
-    internal override void DisposeRes()
+    internal override void DisposeCore()
     {
         if (_handle.Handle != 0)
         {
