@@ -9,7 +9,7 @@ unsafe
     WindowOptions options = WindowOptions.DefaultVulkan;
     options.Title = "sample";
     using VulkanWindow window = new(options);
-
+    using Vk vk = Vk.GetApi();
     window.OnLoad += Onload;
     window.OnUpdate += OnUpdate;
     window.OnRender += OnRender;
@@ -28,8 +28,8 @@ unsafe
         DebugCreateInfo = boot.CreateInfo,
         Version = Vk.MakeVersion(1,1,0)
     };
-    VulkanInstancePreflight.Validate(instanceoptions);
-    using var instance = new VulkanInstance(instanceoptions);
+    VulkanInstancePreflight.Validate(instanceoptions, vk);
+    using var instance = new VulkanInstance(instanceoptions, vk);
     window.Window.Run();
 
     static void Onload() { Logger.Information("onLoad","Meow"); }

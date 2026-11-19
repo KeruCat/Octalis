@@ -7,14 +7,12 @@ namespace Octalis.Vulkan.Core;
 
 internal sealed class VulkanInstance : VulkanObj
 {
-    private static readonly string[] _validationLayers = ["VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"];
     private readonly Vk _vk;
     private readonly Instance _instance;
-    internal Vk Vk { get => _vk; }
     internal Instance Instance { get => _instance; }
-    internal unsafe VulkanInstance(VulkanInstanceOptions options)
+    internal unsafe VulkanInstance(VulkanInstanceOptions options , Vk vk)
     {
-        _vk = Vk.GetApi();
+        _vk = vk;
 
         ApplicationInfo applicationInfo = new()
         {
@@ -49,55 +47,9 @@ internal sealed class VulkanInstance : VulkanObj
             SilkMarshal.Free((nint)createInfo.PpEnabledLayerNames);
         }
     }
-    internal unsafe HashSet<string> LayerNames()
-    {
-        uint count = 0;
-        VkCheck.Ok(_vk.EnumerateInstanceLayerProperties(&count, null), "vkEnumerateInstanceLayerProperties");
-
-        var properties = new LayerProperties[count];
-        var names = new HashSet<string>();
-        fixed (LayerProperties* pProperties = properties)
-        {
-            VkCheck.Ok(_vk.EnumerateInstanceLayerProperties(&count, pProperties),
-                "vkEnumerateInstanceLayerProperties");
-            for (var i = 0; i < count; i++)
-                names.Add(SilkMarshal.PtrToString((nint)pProperties[i].LayerName) ?? string.Empty);
-        }
-        return names;
-    }
-    internal unsafe HashSet<string> ExtensionNames()
-    {
-        uint count = 0;
-        VkCheck.Ok(_vk.EnumerateInstanceExtensionProperties((byte*)null, &count, null),
-            "vkEnumerateInstanceExtensionProperties");
-
-        var properties = new ExtensionProperties[count];
-        var names = new HashSet<string>();
-        fixed (ExtensionProperties* pProperties = properties)
-        {
-            VkCheck.Ok(_vk.EnumerateInstanceExtensionProperties((byte*)null, &count, pProperties),
-                "vkEnumerateInstanceExtensionProperties");
-            for (var i = 0; i < count; i++)
-                names.Add(SilkMarshal.PtrToString((nint)pProperties[i].ExtensionName) ?? string.Empty);
-        }
-        return names;
-    }
-    internal static List<string> CompatibilityCheck(in HashSet<string> avaible, in string[] request)
-    {
-        List<string> output = [];
-        foreach (string name in request)
-        {
-            if (avaible.Contains(name))
-                output.Add(name);
-            else
-                throw new VulkanException($"The resulting {name} is not supported by the system.", "VulkanInstance");
-        }
-        return output;
-    }
     internal override unsafe void DisposeCore()
     {
         _vk.DestroyInstance(_instance, null);
-        _vk.Dispose();
     }
 }
 internal sealed record class VulkanInstanceOptions
