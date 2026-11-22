@@ -23,15 +23,18 @@ unsafe
         ApplicationVersion = Vk.MakeVersion(0,1,0),
         EngineName = "Octalis",
         EngineVersion = Vk.MakeVersion(0,1,0),
-        Extensions = ["VK_EXT_debug_utils"],
+        Extensions = ["VK_EXT_debug_utils", "VK_KHR_win32_surface", "VK_KHR_surface"],
         Layers = ["VK_LAYER_KHRONOS_validation", "VK_LAYER_LUNARG_monitor"],
         DebugCreateInfo = boot.CreateInfo,
         Version = Vk.MakeVersion(1,1,0)
     };
+    window.Window.Initialize();
     try{
         VulkanInstancePreflight.Validate(instanceoptions, vk);
         using var instance = new VulkanInstance(instanceoptions, vk);
-        var device = new PhysicalDeviceSelector(instance.Instance, vk);
+        using var surface = new VulkanSurface(instance.Instance,window.Window,vk);
+        var deviceoptions = new VulkanPhysicalDeviceOptions();
+        var device = PhysicalDeviceSelector.Select(deviceoptions, instance.Instance, vk, surface );
     }finally{vk.Dispose();}
 
     window.Window.Run();
