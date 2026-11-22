@@ -140,8 +140,6 @@ internal static class PhysicalDeviceSelector
         GpuPreference.Integrated => type == PhysicalDeviceType.IntegratedGpu,
         _ => true
     };
-
-    // The preferred type always wins; among equals the type weight and then VRAM decide.
     private static long Score(PhysicalDeviceProperties props, ulong vram, GpuPreference preference)
     {
         long score = props.DeviceType switch
@@ -186,12 +184,6 @@ internal static class PhysicalDeviceSelector
 
     // ---------------------------------------------------------------- queues
 
-    /// <summary>
-    /// Graphics: prefers a family that can also present.
-    /// Present: the graphics family if it can, otherwise any family that can (only when a surface is given).
-    /// Compute: a compute-only family if there is one, otherwise graphics.
-    /// Transfer: a transfer-only family if there is one, otherwise the compute family.
-    /// </summary>
     private static unsafe bool TryPickQueues(
         Vk vk, PhysicalDevice device, VulkanSurface? surface, out QueueFamilies queues, out string error)
     {
