@@ -28,8 +28,12 @@ unsafe
         DebugCreateInfo = boot.CreateInfo,
         Version = Vk.MakeVersion(1,1,0)
     };
-    VulkanInstancePreflight.Validate(instanceoptions, vk);
-    using var instance = new VulkanInstance(instanceoptions, vk);
+    try{
+        VulkanInstancePreflight.Validate(instanceoptions, vk);
+        using var instance = new VulkanInstance(instanceoptions, vk);
+        var device = new PhysicalDeviceSelector(instance.Instance, vk);
+    }finally{vk.Dispose();}
+
     window.Window.Run();
 
     static void Onload() { Logger.Information("onLoad","Meow"); }
